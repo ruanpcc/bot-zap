@@ -6,7 +6,7 @@ const axios = require('axios');
 // Inicializa o cliente para o ambiente estável do Railway
 const client = new Client({
     authStrategy: new LocalAuth(),
-    // Adicione esta configuração de cache abaixo:
+    // 🛡️ Cache remoto para travar uma versão estável do WhatsApp Web e evitar quebras
     webVersionCache: {
         type: 'remote',
         remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
@@ -51,17 +51,18 @@ client.on('ready', () => {
 });
 
 client.on('message', async (msg) => {
+    // Pega o texto se for mensagem de texto pura ou legenda de imagem/vídeo
     const textoMensagem = msg.body || msg.caption || '';
 
     if (!textoMensagem.startsWith(PREFIX)) return;
 
-    // Proteção para evitar crash se o Puppeteer falhar ao buscar o chat
+    // 🛡️ Proteção: Evita que erros internos do WhatsApp (como "r: r") derrubem o bot
     let chat;
     try {
         chat = await msg.getChat();
     } catch (err) {
-        console.error('Erro ao obter contexto do chat:', err.message || err);
-        return; // Interrompe o comando em vez de derrubar o bot
+        console.error('❌ Erro ao buscar o chat da mensagem:', err.message || err);
+        return; // Interrompe apenas essa mensagem sem fechar o processo do bot
     }
 
     const args = textoMensagem.slice(PREFIX.length).trim().split(/ +/);
