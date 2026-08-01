@@ -6,6 +6,11 @@ const axios = require('axios');
 // Inicializa o cliente para o ambiente estável do Railway
 const client = new Client({
     authStrategy: new LocalAuth(),
+    // Adicione esta configuração de cache abaixo:
+    webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
+    },
     puppeteer: {
         headless: true,
         executablePath: '/usr/bin/chromium',
@@ -46,12 +51,19 @@ client.on('ready', () => {
 });
 
 client.on('message', async (msg) => {
-    // Pega o texto se for mensagem de texto pura ou legenda de imagem/vídeo
     const textoMensagem = msg.body || msg.caption || '';
 
     if (!textoMensagem.startsWith(PREFIX)) return;
 
-    const chat = await msg.getChat();
+    // Proteção para evitar crash se o Puppeteer falhar ao buscar o chat
+    let chat;
+    try {
+        chat = await msg.getChat();
+    } catch (err) {
+        console.error('Erro ao obter contexto do chat:', err.message || err);
+        return; // Interrompe o comando em vez de derrubar o bot
+    }
+
     const args = textoMensagem.slice(PREFIX.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
     const restOfText = args.join(' ');
