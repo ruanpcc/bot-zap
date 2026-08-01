@@ -7,12 +7,12 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "axios": "^1.7.2",
+    "axios": "^1.18.1",
     "qrcode-terminal": "^0.12.0",
     "qr-image": "^3.2.0",
-    "sharp": "^0.33.4",
+    "sharp": "^0.35.2",
     "wa-sticker-formatter": "^4.4.4",
-    "whatsapp-web.js": "^1.26.0"
+    "whatsapp-web.js": "github:pedroslopez/whatsapp-web.js#main"
   },
   "author": "",
   "license": "ISC"
